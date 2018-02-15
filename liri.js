@@ -1,6 +1,7 @@
 
 //grabbing all the needed packages ==>
 var fs = require("fs");
+var request = require('request')
 var Spotify = require("node-spotify-api");
 var Twitter = require("twitter");
 var Omdb = require("omdb");
@@ -17,7 +18,7 @@ var spotify = new Spotify({
 });
 
 var type = process.argv[2];
-var name = '';
+var name;
 if (process.argv.length>3){
     for (var i=3;i<process.argv.length;i++){
         name = name + process.argv[i] + ' ';
@@ -74,32 +75,67 @@ function twitter_call(){
 }
 
 
-function omdb_call(movie_name){
-    Omdb.search(movie_name, function(err, movies) {
-        if(err) {
-            return console.error(err);
+function omdb_call(name) {
+    if(name == null) {
+        name = 'mr+nobody';
+    }
+    name.replace('','+')
+    console.log(name);
+
+    var apiKey = '836a1898';
+
+    var queryUrl = 'http://www.omdbapi.com/?apikey='+apiKey+'&s='+name;
+
+    request(queryUrl, function(error, response, body) {
+        if(!error && response.statusCode == 200) {
+            console.log('Title')
+            console.log(JSON.parse(body)['Title']);
+            console.log(JSON.parse(body.title));
+            console.log("Release Date")
+            console.log(JSON.parse(body.released));
+            console.log("IMDB Rating")
+            console.log(JSON.parse(body.imdbRating));
+            console.log("Country filmed in")
+            console.log(JSON.parse(body.country));
+            console.log("Rottentomato rating ")
+            console.log(JSON.parse(body.tomatoRating));
+            console.log("actors")
+            console.log(JSON.parse(body.actors));
+            console.log("language")
+            console.log(JSON.parse(body.language));
+        } else {
+            console.log("Error.  Not defined.........................Possibly no movies were found");
         }
-        if(movie_name === null || movie_name ===undefined){
-            movie_name = 'mr nobody';
-        }
+    })}
 
-        if(movies.length < 1) {
-            return console.log('No movies were found!');
-        }
 
-        movies.forEach(function(movie) {
-            console.log('______________________');
-            console.log(movie.title);
-            console.log(movie.year);
-            console.log(movie.country);
-            console.log(movie.language);
-            console.log(movie.actors);
-            console.log('______________________')
 
-        });
-    });
 
-}
+//     Omdb.search(movie_name, function(err, movies) {
+//         if(err) {
+//             return console.error(err);
+//         }
+//         if(movie_name === null || movie_name ===undefined){
+//             movie_name = 'mr nobody';
+//         }
+//
+//         if(movies.length < 1) {
+//             return console.log('No movies were found!');
+//         }
+//
+//         movies.forEach(function(movie) {
+//             console.log('______________________');
+//             console.log(movie.title);
+//             console.log(movie.year);
+//             console.log(movie.country);
+//             console.log(movie.language);
+//             console.log(movie.actors);
+//             console.log('______________________')
+//
+//         });
+//     });
+//
+// }
 function play_default_song(){
     console.log("hello!!!!");
     fs.readFile("random.txt", "utf8", function(error, data){
