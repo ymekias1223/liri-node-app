@@ -18,7 +18,7 @@ var spotify = new Spotify({
 });
 
 var type = process.argv[2];
-var name;
+var name = "";
 if (process.argv.length>3){
     for (var i=3;i<process.argv.length;i++){
         name = name + process.argv[i] + ' ';
@@ -30,24 +30,21 @@ var accept_args = ['my-tweets','spotify-this-song','movie-this','do-what-it-says
 //____________________________________
 
 function spotify_call(name){
-    params = name;
-    spotify.search({ type: "track", query: params }, function(err, data) {
+    spotify.search({ type: "track", query: name }, function(err, data) {
         if(!err) {
             var songInfo = data.tracks.items;
             for (var i = 0; i < 5; i++) {
-                if (songInfo[i] != undefined) {
                         console.log("Artist: " + songInfo[i].artists[0].name);
                         console.log("Song: " + songInfo[i].name);
                         console.log("Album: " + songInfo[i].album.name);
                         console.log("Preview Url: " + songInfo[i].preview_url);
 
-                }
             }
         }   else {
             console.log(err);
-            return;
         }
     });
+
 }
 
 function twitter_call(){
@@ -76,35 +73,32 @@ function twitter_call(){
 
 
 function omdb_call(name) {
-    if(name == null) {
+    if(name ==='') {
         name = 'mr+nobody';
     }
-    name.replace('','+')
-    console.log(name);
 
-    var apiKey = '836a1898';
+    var queryUrl = 'http://www.omdbapi.com/?apikey=836a1898&t='+name;
 
-    var queryUrl = 'http://www.omdbapi.com/?apikey='+apiKey+'&s='+name;
 
     request(queryUrl, function(error, response, body) {
         if(!error && response.statusCode == 200) {
-            console.log('Title')
-            console.log(JSON.parse(body)['Title']);
-            console.log(JSON.parse(body.title));
+            console.log('Title');
+            // console.log(JSON.parse(body)['Title']);
+            console.log(JSON.parse(body).Title);
             console.log("Release Date")
-            console.log(JSON.parse(body.released));
+            console.log(JSON.parse(body).Year);
             console.log("IMDB Rating")
-            console.log(JSON.parse(body.imdbRating));
+            console.log(JSON.parse(body).Ratings[0].value);
             console.log("Country filmed in")
-            console.log(JSON.parse(body.country));
+            console.log(JSON.parse(body).Country);
             console.log("Rottentomato rating ")
-            console.log(JSON.parse(body.tomatoRating));
+            console.log(JSON.parse(body).Ratings[1].Value);
             console.log("actors")
-            console.log(JSON.parse(body.actors));
+            console.log(JSON.parse(body).Actors);
             console.log("language")
-            console.log(JSON.parse(body.language));
+            console.log(JSON.parse(body).Language);
         } else {
-            console.log("Error.  Not defined.........................Possibly no movies were found");
+            console.log(error);
         }
     })}
 
@@ -152,6 +146,7 @@ function play_default_song(){
 
 //___________________________________
 function main(){
+    console.log(type,name)
     switch(type){
         case 'my-tweets':
             twitter_call();
